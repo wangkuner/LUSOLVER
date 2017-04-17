@@ -1,5 +1,6 @@
 #include<iostream>
 #include<cstring>
+#include<iterator>
 
 #include"mylu.h"
 #include"mc64.h"
@@ -373,19 +374,133 @@ int SymbolPrediction(long n,long k,long *cap,long *cai,long *lucap,long *ludiag,
 	return 1;
 }
 
-int SymbolFactor(long n,long nnz,long *cap,long *cai,double *cax,long &lunnz,long *luap,long *ludiag,long **luai,long *rowPerm,long *rowPermInv,long *colPerm,long *colPermInv)
+int SymbolFactor(long n,long *ap,long *ai,long &lunnz,long *luap,long *ludiag,long **luai)
 {
-	MC64(n,nnz,cap,cai,cax,colPerm,colPermInv);
-	MatrixPermute(n,nnz,cap,cai,cax,colPermInv);
-	amd_l_order(n,cap,cai,rowPerm,nullptr,nullptr);
+	vector<long>tmpluai;
+
+	char *nonzero=new char[n]{0};
+
+	if(!nonzero)
+	{
+		cout<<"file \""<<__FILE__<<"\" line "<<__LINE__<<":"<<"allocating memory failed"<<endl;
+		return 0;
+	}
+
+	//symbol prediction, get the parttern of LU
+	for(int k=0;k<n;k++)
+	{
+		SymbolPrediction(n,k,cap,*cai,lucap,ludiag,lucai,nonzero);
+
+		len=0;
+		diag=0;
+		for(int i=0;i<n;i++)
+		{
+			if(i<=k)
+			{
+				if(nonzero[i]!=0)
+				{
+					len++;
+					diag++;
+					tmpluai.push_back(i);
+					nonzero[i]=0;
+				}
+			}
+			else
+			{
+				if(nonzero[i]!=0)
+				{
+					len++;
+					tmpluai.push_back(i);
+					nonzero[i]=0;
+				}
+			}
+		}
+		luap[k+1]=lucap[k]+len;
+		ludiag[k]=lucap[k]+diag-1;
+	}
+
+	lunnz=tmpluai.size();
+
+	if(*luai!=nullptr)
+	{
+		delete[] *luai;
+	}
+	*luai=new long[lunnz];
+	if(!(*luai))
+	{
+		cout<<"file \""<<__FILE__<<"\" line "<<__LINE__<<":"<<"allocating memory failed"<<endl;
+		return 0;
+	}
+
+	for(long i=0;i<lunnz;i++)
+	{
+		(*luai)[i]=tmpluai[i];
+	}
+
+	if(nonzero!=nullptr)
+	{
+		delete[] nonzero;
+		nonzero=nullptr;
+	}
+
+	return 1;
+}
+
+int PreAnalysis(long n,long nnz,long *ap,long *ai,double *ax,long &lunnz,long *luap,long *ludiag,long **luai,\
+		long *rowPerm,long *rowPermInv,long *colPerm,long *colPermInv)
+{
+	if((end(luap)-begin(luap))!=n+1)
+	{
+		cout<<"memory space of luap is insuffient"<<endl;
+		return 0;
+	}
+	memset(luap,0,(n+1)*sizeof(long));
+
+	if((end(ludiag)-begin(ludiag))!=n)
+	{
+		cout<<"memory space of ludiag is insuffient"<<endl;
+		return 0;
+	}
+	memset(ludiag,0,n*sizeof(long));
+
+	if((end(rowPerm)-begin(rowPerm))!=n)
+	{
+		cout<<"memory space of rowPerm is insuffient"<<endl;
+		return 0;
+	}
+
+	if((end(rowPermInv)-begin(rowPermInv))!=n)
+	{
+		cout<<"memory space of rowPermInv is insuffient"<<endl;
+		return 0;
+	}
+
+	if((end(colPerm)-begin(colPerm))!=n)
+	{
+		cout<<"memory space of colPerm is insuffient"<<endl;
+		return 0;
+	}
+
+	if((end(colPermInv)-begin(colPermInv))!=n)
+	{
+		cout<<"memory space of colPermInv is insuffient"<<endl;
+		return 0;
+	}
+
+	MC64(n,nnz,ap,ai,ax,colPerm,colPermInv);
+	MatrixPermute(n,nnz,ap,ai,ax,colPermInv);
+	amd_l_order(n,ap,ai,rowPerm,nullptr,nullptr);
 	for(long i=0;i<n;i++)
 	{
 		rowPermInv[rowPerm[i]]=i;
 	}
-	CSC2CSR(n,nnz,cap,cai,cax);
-	MatrixPermute(n,nnz,cap,cai,cax,rowPermInv);
-	CSR2CSC(n,nnz,cap,cai,cax);
+	CSC2CSR(n,nnz,ap,ai,ax);
+	MatrixPermute(n,nnz,ap,ai,ax,rowPermInv);
+	CSR2CSC(n,nnz,ap,ai,ax);
 	//符号分解
+	SymbolFactor(n,ap,ai,lunnz,luap,ludiag,luai);
+
+	return 1;
 }
 
 void GPLUFactorize(long n,long &nnz,long *cap,long *cdiag,long **cai,double **cax)

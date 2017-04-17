@@ -23,7 +23,10 @@ int DFS(long n,long col,long *lucap,long *ludiag,std::vector<long> lucai,char *l
 
 int SymbolPrediction(long n,long k,long *cap,long *cai,long *lucap,long *ludiag,std::vector<long> lucai,char *nonzero);
 
-int SymbolFactor(long n,long nnz,long *cap,long *cai,double *cax,long &lunnz,long *luap,long *ludiag,long **luai,long *rowPerm,long *rowPermInv,long *colPerm,long *colPermInv);
+int SymbolFactor(long n,long *ap,long *ai,long &lunnz,long *luap,long *ludiag,long **luai);
+
+int PreAnalysis(long n,long nnz,long *ap,long *ai,double *ax,long &lunnz,long *luap,long *ludiag,long **luai,\
+		long *rowPerm,long *rowPermInv,long *colPerm,long *colPermInv);
 
 void GPLUFactorize(long n,long &nnz,long *cap,long *cdiag,long **cai,double **cax);
 
