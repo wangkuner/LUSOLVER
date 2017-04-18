@@ -174,7 +174,7 @@ END:
 		vb=nullptr;
 	}
 	
-	system("pause");
+	//system("pause");
 	return 0;
 }
 
