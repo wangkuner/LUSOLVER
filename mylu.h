@@ -11,25 +11,25 @@
 #define UNVISITED 0
 #define VISITED 1
 
-void FormatMatrixIntoCSR(Matrix2D<double> matA,long &n,long &nnz,long **ap,long **ai,double **ax);
+void FormatMatrixIntoCSR(Matrix2D<double> matA,int &n,int &nnz,int **ap,int **ai,double **ax);
 
-void CSR2CSC(long n,long nnz,long *ap,long *ai,double *ax);
+void CSR2CSC(int n,int nnz,int *ap,int *ai,double *ax);
 
-void CSC2CSR(long n,long nnz,long *ap,long *ai,double *ax);
+void CSC2CSR(int n,int nnz,int *ap,int *ai,double *ax);
 
-void MatrixPermute(long n,long nnz,long *ap,long *ai,double *ax,long *perm);
+void MatrixPermute(int n,int nnz,int *ap,int *ai,double *ax,int *perm);
 
-int DFS(long n,long col,long *lucap,long *ludiag,std::vector<long> lucai,char *line);
+int DFS(int n,int col,int *luap,int *ludiag,std::vector<int> luai,char *line);
 
-int SymbolPrediction(long n,long k,long *cap,long *cai,long *lucap,long *ludiag,std::vector<long> lucai,char *nonzero);
+int SymbolPrediction(int n,int k,int *cap,int *cai,int *luap,int *ludiag,std::vector<int> luai,char *nonzero);
 
-int SymbolFactor(long n,long *ap,long *ai,long &lunnz,long *luap,long *ludiag,long **luai);
+int SymbolFactor(int n,int *ap,int *ai,int &lunnz,int *luap,int *ludiag,int **luai);
 
-int PreAnalysis(long n,long nnz,long *ap,long *ai,double *ax,long &lunnz,long *luap,long *ludiag,long **luai,\
-		long *rowPerm,long *rowPermInv,long *colPerm,long *colPermInv);
+int PreAnalysis(int n,int nnz,int *ap,int *ai,double *ax,int &lunnz,int *luap,int *ludiag,int **luai,\
+		int *rowPerm,int *rowPermInv,int *colPerm,int *colPermInv);
 
-void GPLUFactorize(long n,long &nnz,long *cap,long *cdiag,long **cai,double **cax);
+void GPLUFactorize(int n,int *ap,int *ai,double *ax,int *luap,int *ludiag,int *luai,double **luax);
 
-void MyNicsluSolve(long n,long *cap,long *cdiag,long *cai,double *cax,double *b,long *rowPerm,long *rowPermInv,long *colPerm,long *colPermInv);
+void Lusolve(int n,int *luap,int *ludiag,int *luai,double *luax,double *b,int *rowPerm,int *rowPermInv,int *colPerm,int *colPermInv);
 
 #endif

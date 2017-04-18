@@ -1,9 +1,8 @@
 #include<iostream>
-#include<string>
+#include<cstring>
+#include"mc64.h"
 
 using namespace std;
-
-void MC21(int n, int *ap, int *ai, int *perm, int *permInv);
 
 void MC21(int n, int *ap, int *ai, int *perm,int *permInv)
 {

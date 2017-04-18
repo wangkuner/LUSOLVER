@@ -3,7 +3,7 @@
 #include<sstream>
 #include<iomanip>
 #include<string>
-#include"amd.h"
+#include"mylu.h"
 
 using namespace std;
 
@@ -11,37 +11,118 @@ int ReadMTX2CSC(string filename, int &n, int &nnz, int **ap, int **ai, double **
 
 int main()
 {
-	int n, nnz;
+	int n, nnz,lunnz;
 	int *ap{ nullptr };
 	int	*ai{ nullptr };
 	double *ax{ nullptr };
 
-	int *perm{ nullptr };
-	double control[AMD_CONTROL], info[AMD_INFO];
+	int *luap{nullptr};
+	int *ludiag{nullptr};
+	int *luai{nullptr};
+	double *luax{nullptr};
+
+	int *rowPerm{ nullptr };
+	int *rowPermInv{ nullptr };
+	int *colPerm{ nullptr };
+	int *colPermInv{ nullptr };
+
+	double *b{nullptr};
+	double *x{nullptr};
+	double *vb{nullptr};
+
+	bool flag{true};
 
 	if (!ReadMTX2CSC(string("test.mtx"), n, nnz, &ap, &ai, &ax))
 	{
 		goto END;
 	}
-	perm = new int[n];
-	if (!perm)
+	rowPerm = new int[4*n];
+	if (!rowPerm)
 	{
 		cout << "file \"" << __FILE__ << "\" line " << __LINE__ << ": allocate failed" << endl;
 		return 0;
 	}
+	rowPermInv=rowPerm+n;
+	colPermInv=rowPermInv+n;
+	colPerm=colPermInv+n;
 
-	amd_order(n, ap, ai, perm, control, info);
-	amd_info(info);
-	cout << endl << "perm:";
-	for (int i = 0; i < n; i++)
+	luap=new int[2*n+1];
+	ludiag=luap+n+1;
+
+	b=new double[3*n]{0.0};
+	x=b+n;
+	vb=x+n;
+
+	for(int i=0;i<n;i++)
 	{
-		cout << setw(10) << perm[i];
-		if ((i + 1) % 10 == 0)
+		for(int j=ap[i];j<ap[i+1];j++)
 		{
-			cout << endl;
+			b[ai[j]]+=ax[j]*i;
 		}
 	}
-	cout << endl;
+	
+	cout<<"b="<<endl;
+	for(int i=0;i<n;i++)
+	{
+		x[i]=b[i];
+		vb[i]=b[i];
+		cout<<setw(10)<<x[i];
+		if((i+1)%10==0)
+		{
+			cout<<endl;
+		}
+	}
+
+	PreAnalysis(n,nnz,ap,ai,ax,lunnz,luap,ludiag,&luai,rowPerm,rowPermInv,colPerm,colPermInv);
+	GPLUFactorize(n,ap,ai,ax,luap,ludiag,luai,&luax);
+	Lusolve(n,luap,ludiag,luai,luax,x,rowPerm,rowPermInv,colPerm,colPermInv);
+
+	if (!ReadMTX2CSC(string("test.mtx"), n, nnz, &ap, &ai, &ax))
+	{
+		goto END;
+	}
+	
+	cout<<endl<<"colPerm="<<endl;
+	for(int i=0;i<n;i++)
+	{
+		cout<<setw(10)<<colPerm[i];
+		if((i+1)%10==0)
+		{
+			cout<<endl;
+		}
+	}
+
+	cout<<endl<<"x="<<endl;
+	for(int i=0;i<n;i++)
+	{
+		for(int j=ap[i];j<ap[i+1];j++)
+		{
+			b[ai[j]]-=ax[j]*x[i];
+		}
+		cout<<setw(10)<<x[i];
+		if((i+1)%10==0)
+		{
+			cout<<endl;
+		}
+	}
+
+	cout<<endl;
+	for(int i=0;i<n;i++)
+	{
+		if(b[i]-vb[i]<1e-32&&b[i]-vb[i]>-1e-32)
+		{
+			cout<<i<<endl;
+			flag=false;
+		}
+	}
+	if(flag)
+	{
+		cout<<"right"<<endl;
+	}
+	else
+	{
+		cout<<"wrong"<<endl;
+	}
 
 END:
 	if (ap != nullptr)
@@ -59,13 +140,41 @@ END:
 		delete[] ax;
 		ax = nullptr;
 	}
-	if (perm != nullptr)
+	if (rowPerm != nullptr)
 	{
-		delete[] perm;
-		perm = nullptr;
+		delete[] rowPerm;
+		rowPerm = nullptr;
+		rowPermInv=nullptr;
+		colPermInv=nullptr;
+		colPerm=nullptr;
+	}
+
+	if(luap!=nullptr)
+	{
+		delete[] luap;
+		luap=nullptr;
+		ludiag=nullptr;
+	}
+	if(luai!=nullptr)
+	{
+		delete[] luai;
+		luai=nullptr;
+	}
+	if(luax!=nullptr)
+	{
+		delete[] luax;
+		luax=nullptr;
+	}
+
+	if(b!=nullptr)
+	{
+		delete[] b;
+		b=nullptr;
+		x=nullptr;
+		vb=nullptr;
 	}
 	
-	system("pause");
+	//system("pause");
 	return 0;
 }
 
@@ -128,7 +237,7 @@ int ReadMTX2CSC(string filename, int &n, int &nnz, int **ap, int **ai, double **
 
 	if (*ap != nullptr)
 	{
-		delete[] * ap;
+		delete[] *ap;
 	}
 	*ap = new int[n + 1];
 	if (!(*ap))
@@ -139,7 +248,7 @@ int ReadMTX2CSC(string filename, int &n, int &nnz, int **ap, int **ai, double **
 
 	if (*ai != nullptr)
 	{
-		delete[] * ai;
+		delete[] *ai;
 	}
 	*ai = new int[nnz];
 	if (!(*ai))
@@ -150,7 +259,7 @@ int ReadMTX2CSC(string filename, int &n, int &nnz, int **ap, int **ai, double **
 
 	if (*ax != nullptr)
 	{
-		delete[] * ax;
+		delete[] *ax;
 	}
 	*ax = new double[nnz];
 	if (!(*ax))

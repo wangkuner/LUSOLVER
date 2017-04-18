@@ -9,20 +9,22 @@ class MinHeap{
 private:
 	void Reheap(double *d);
 public:
-	MinHeap(long size=0);
+	MinHeap(int size=0);
 	~MinHeap();
-	void Add(long h, double *d);
-	long PopRoot(double *d);
+	void Add(int h, double *d);
+	int PopRoot(double *d);
 	void Clear();
-	void Resize(long size);
+	void Resize(int size);
 public:
-	long max;
-	long n;	//number of elements in heap
-	long *data;
+	int max;
+	int n;	//number of elements in heap
+	int *data;
 };
 
-long MaxMatch(long n, long *ap, long *ai, long *perm, long *permInv);
+int MaxMatch(int n, int *ap, int *ai, int *perm, int *permInv);
 
-long MC64(long n, long nnz, long *ap, long *ai, double *ax, long *perm, long *permInv);
+int MC64(int n, int nnz, int *ap, int *ai, double *ax, int *perm, int *permInv);
+
+void MC21(int n, int *ap, int *ai, int *perm, int *permInv);
 
 #endif

@@ -12,9 +12,9 @@ using std::vector;
 
 
 
-void FormatMatrixIntoCSR(Matrix2D<double> matA,long &n,long &nnz,long **ap,long **ai,double **ax)
+void FormatMatrixIntoCSR(Matrix2D<double> matA,int &n,int &nnz,int **ap,int **ai,double **ax)
 {
-	unsigned long num{0};
+	unsigned int num{0};
 
 	if(matA.row!=matA.col)
 	{
@@ -28,11 +28,11 @@ void FormatMatrixIntoCSR(Matrix2D<double> matA,long &n,long &nnz,long **ap,long 
 	{
 		delete[] *ap;
 	}
-	*ap=new long[n+1]{0};
+	*ap=new int[n+1]{0};
 
-	for(unsigned long i=0;i<matA.row;i++)
+	for(unsigned int i=0;i<matA.row;i++)
 	{
-		for(unsigned long j=0;j<matA.col;j++)
+		for(unsigned int j=0;j<matA.col;j++)
 		{
 			if(!(*(matA.Mat+i*matA.col+j)<1e-6&&*(matA.Mat+i*matA.col+j)>-1e-6))
 			{
@@ -52,13 +52,13 @@ void FormatMatrixIntoCSR(Matrix2D<double> matA,long &n,long &nnz,long **ap,long 
 	{
 		delete[] *ai;
 	}
-	*ai=new long[nnz]{0};
+	*ai=new int[nnz]{0};
 
 	num=0;
 
-	for(unsigned long i=0;i<matA.row;i++)
+	for(unsigned int i=0;i<matA.row;i++)
 	{
-		for(unsigned long j=0;j<matA.col;j++)
+		for(unsigned int j=0;j<matA.col;j++)
 		{
 			if(!(*(matA.Mat+i*matA.col+j)<1e-6&&*(matA.Mat+i*matA.col+j)>-1e-6))
 			{
@@ -70,7 +70,7 @@ void FormatMatrixIntoCSR(Matrix2D<double> matA,long &n,long &nnz,long **ap,long 
 	}
 }
 
-void CSR2CSC(long n,long nnz,long *ap,long *ai,double *ax)
+void CSR2CSC(int n,int nnz,int *ap,int *ai,double *ax)
 {
 	if(ap==nullptr||ai==nullptr||ax==nullptr)
 	{
@@ -82,8 +82,8 @@ void CSR2CSC(long n,long nnz,long *ap,long *ai,double *ax)
 
 	int *nonzeropercol=new int[n]{0};
 
-	long *cap=new long[n+1]{0};
-	long *cai=new long[nnz]{0};
+	int *cap=new int[n+1]{0};
+	int *cai=new int[nnz]{0};
 	double *cax=new double[nnz]{0};
 
 	for(int i=0;i<n;i++)
@@ -109,9 +109,9 @@ void CSR2CSC(long n,long nnz,long *ap,long *ai,double *ax)
 		}
 	}
 
-	size=(n+1)*sizeof(long);
+	size=(n+1)*sizeof(int);
 	memcpy(ap,cap,size);
-	size=nnz*sizeof(long);
+	size=nnz*sizeof(int);
 	memcpy(ai,cai,size);
 	size=nnz*sizeof(double);
 	memcpy(ax,cax,size);
@@ -138,7 +138,7 @@ void CSR2CSC(long n,long nnz,long *ap,long *ai,double *ax)
 	}
 }
 
-void CSC2CSR(long n,long nnz,long *ap,long *ai,double *ax)
+void CSC2CSR(int n,int nnz,int *ap,int *ai,double *ax)
 {
 	if(ap==nullptr||ai==nullptr||ax==nullptr)
 	{
@@ -150,14 +150,14 @@ void CSC2CSR(long n,long nnz,long *ap,long *ai,double *ax)
 
 	int *nonzeropercol=new int[n]{0};
 
-	long *cap=new long[n+1]{0};
-	long *cai=new long[nnz]{0};
+	int *cap=new int[n+1]{0};
+	int *cai=new int[nnz]{0};
 	double *cax=new double[nnz]{0};
 
-	size=(n+1)*sizeof(long);
+	size=(n+1)*sizeof(int);
 	memcpy(cap,ap,size);
 	memset(ap,0,size);
-	size=nnz*sizeof(long);
+	size=nnz*sizeof(int);
 	memcpy(cai,ai,size);
 	size=nnz*sizeof(double);
 	memcpy(cax,ax,size);
@@ -209,7 +209,7 @@ void CSC2CSR(long n,long nnz,long *ap,long *ai,double *ax)
 	}
 }
 
-void MatrixPermute(long n,long nnz,long *ap,long *ai,double *ax,long *perm)
+void MatrixPermute(int n,int nnz,int *ap,int *ai,double *ax,int *perm)
 {
 	if(ap==nullptr||ai==nullptr||ax==nullptr)
 	{
@@ -218,15 +218,15 @@ void MatrixPermute(long n,long nnz,long *ap,long *ai,double *ax,long *perm)
 	}
 
 	size_t size=0;
-	long p=0;
+	int p=0;
 
-	long *tap=new long[n+1]{0};
-	long *tai=new long[nnz]{0};
+	int *tap=new int[n+1]{0};
+	int *tai=new int[nnz]{0};
 	double *tax=new double[nnz]{0};
 
-	size=(n+1)*sizeof(long);
+	size=(n+1)*sizeof(int);
 	memcpy(tap,ap,size);
-	size=(nnz)*sizeof(long);
+	size=(nnz)*sizeof(int);
 	memcpy(tai,ai,size);
 	size=(nnz)*sizeof(double);
 	memcpy(tax,ax,size);
@@ -265,7 +265,7 @@ void MatrixPermute(long n,long nnz,long *ap,long *ai,double *ax,long *perm)
 	}
 }
 
-int DFS(long n,long col,long *lucap,long *ludiag,std::vector<long> lucai,char *line)
+int DFS(int n,int col,int *luap,int *ludiag,std::vector<int> luai,char *line)
 {
 	/*递归方法速度太慢
 	if(line[colki]==VISITED)
@@ -273,18 +273,18 @@ int DFS(long n,long col,long *lucap,long *ludiag,std::vector<long> lucai,char *l
 		return 0;
 	}
 
-	long cstart{0};
-	long cend{0};
+	int cstart{0};
+	int cend{0};
 
 	line[colki]=VISITED;
 
-	if(lucap[colki+1]-ludiag[colki]>1)
+	if(luap[colki+1]-ludiag[colki]>1)
 	{
 		cstart=ludiag[colki]+1;
-		cend=lucap[colki+1];
-		for(long i=cstart;i<cend;i++)
+		cend=luap[colki+1];
+		for(int i=cstart;i<cend;i++)
 		{
-			DFS(lucai[i],lucap,ludiag,lucai,line);
+			DFS(luai[i],luap,ludiag,luai,line);
 		}
 	}
 	else
@@ -292,24 +292,24 @@ int DFS(long n,long col,long *lucap,long *ludiag,std::vector<long> lucai,char *l
 		return 0;
 	}
 	*/
-	long coli{ludiag[col]+1};
-	vector<long> stack(2*n);
+	int coli{ludiag[col]+1};
+	vector<int> stack(2*n);
 	int top=-1;
 
 	
 	line[col]=VISITED;
 
-	while(coli<lucap[col+1] || (!(top==-1)))
+	while(coli<luap[col+1] || (!(top==-1)))
 	{
-		if(coli<lucap[col+1])
+		if(coli<luap[col+1])
 		{
-			while(coli<lucap[col+1])
+			while(coli<luap[col+1])
 			{
-				if(line[lucai[coli]]!=VISITED)
+				if(line[luai[coli]]!=VISITED)
 				{
 					stack[++top]=col;
 					stack[++top]=coli;
-					col=lucai[coli];
+					col=luai[coli];
 					coli=ludiag[col]+1;
 					line[col]=VISITED;
 					break;
@@ -323,15 +323,15 @@ int DFS(long n,long col,long *lucap,long *ludiag,std::vector<long> lucai,char *l
 			//stack.pop_back();
 			col=stack[top--];
 			//stack.pop_back();
-			while(coli<lucap[col+1])
+			while(coli<luap[col+1])
 			{
-				if(line[lucai[coli]]!=VISITED)
+				if(line[luai[coli]]!=VISITED)
 				{
 					//stack.push_back(col);
 					//stack.push_back(coli);
 					stack[++top]=col;
 					stack[++top]=coli;
-					col=lucai[coli];
+					col=luai[coli];
 					coli=ludiag[col]+1;
 					line[col]=VISITED;
 					break;
@@ -344,17 +344,17 @@ int DFS(long n,long col,long *lucap,long *ludiag,std::vector<long> lucai,char *l
 	return 1;
 }
 
-int SymbolPrediction(long n,long k,long *cap,long *cai,long *lucap,long *ludiag,std::vector<long> lucai,char *nonzero)
+int SymbolPrediction(int n,int k,int *ap,int *ai,int *luap,int *ludiag,std::vector<int> luai,char *nonzero)
 {
 	char *line=new char[n]{0};
 
-	long cstart=cap[k];
-	long cend=cap[k+1];
-	long ln=0;
+	int cstart=ap[k];
+	int cend=ap[k+1];
+	int ln=0;
 
 	for(int i=cstart;i<cend;i++)
 	{
-		DFS(n,cai[i],lucap,ludiag,lucai,line);
+		DFS(n,ai[i],luap,ludiag,luai,line);
 		
 		for(ln=0;ln<n;ln++)
 		{
@@ -374,11 +374,14 @@ int SymbolPrediction(long n,long k,long *cap,long *cai,long *lucap,long *ludiag,
 	return 1;
 }
 
-int SymbolFactor(long n,long *ap,long *ai,long &lunnz,long *luap,long *ludiag,long **luai)
+int SymbolFactor(int n,int *ap,int *ai,int &lunnz,int *luap,int *ludiag,int **luai)
 {
-	vector<long>tmpluai;
+	vector<int>tmpluai;
 
 	char *nonzero=new char[n]{0};
+
+	int len{0};
+	int diag{0};
 
 	if(!nonzero)
 	{
@@ -389,7 +392,7 @@ int SymbolFactor(long n,long *ap,long *ai,long &lunnz,long *luap,long *ludiag,lo
 	//symbol prediction, get the parttern of LU
 	for(int k=0;k<n;k++)
 	{
-		SymbolPrediction(n,k,cap,*cai,lucap,ludiag,lucai,nonzero);
+		SymbolPrediction(n,k,ap,ai,luap,ludiag,tmpluai,nonzero);
 
 		len=0;
 		diag=0;
@@ -415,8 +418,8 @@ int SymbolFactor(long n,long *ap,long *ai,long &lunnz,long *luap,long *ludiag,lo
 				}
 			}
 		}
-		luap[k+1]=lucap[k]+len;
-		ludiag[k]=lucap[k]+diag-1;
+		luap[k+1]=luap[k]+len;
+		ludiag[k]=luap[k]+diag-1;
 	}
 
 	lunnz=tmpluai.size();
@@ -425,14 +428,14 @@ int SymbolFactor(long n,long *ap,long *ai,long &lunnz,long *luap,long *ludiag,lo
 	{
 		delete[] *luai;
 	}
-	*luai=new long[lunnz];
+	*luai=new int[lunnz];
 	if(!(*luai))
 	{
 		cout<<"file \""<<__FILE__<<"\" line "<<__LINE__<<":"<<"allocating memory failed"<<endl;
 		return 0;
 	}
 
-	for(long i=0;i<lunnz;i++)
+	for(int i=0;i<lunnz;i++)
 	{
 		(*luai)[i]=tmpluai[i];
 	}
@@ -446,51 +449,22 @@ int SymbolFactor(long n,long *ap,long *ai,long &lunnz,long *luap,long *ludiag,lo
 	return 1;
 }
 
-int PreAnalysis(long n,long nnz,long *ap,long *ai,double *ax,long &lunnz,long *luap,long *ludiag,long **luai,\
-		long *rowPerm,long *rowPermInv,long *colPerm,long *colPermInv)
+int PreAnalysis(int n,int nnz,int *ap,int *ai,double *ax,int &lunnz,int *luap,int *ludiag,int **luai,\
+		int *rowPerm,int *rowPermInv,int *colPerm,int *colPermInv)
 {
-	if((end(luap)-begin(luap))!=n+1)
-	{
-		cout<<"memory space of luap is insuffient"<<endl;
-		return 0;
-	}
-	memset(luap,0,(n+1)*sizeof(long));
+	memset(luap,0,(n+1)*sizeof(int));
 
-	if((end(ludiag)-begin(ludiag))!=n)
-	{
-		cout<<"memory space of ludiag is insuffient"<<endl;
-		return 0;
-	}
-	memset(ludiag,0,n*sizeof(long));
+	memset(ludiag,0,n*sizeof(int));
 
-	if((end(rowPerm)-begin(rowPerm))!=n)
-	{
-		cout<<"memory space of rowPerm is insuffient"<<endl;
-		return 0;
-	}
-
-	if((end(rowPermInv)-begin(rowPermInv))!=n)
-	{
-		cout<<"memory space of rowPermInv is insuffient"<<endl;
-		return 0;
-	}
-
-	if((end(colPerm)-begin(colPerm))!=n)
-	{
-		cout<<"memory space of colPerm is insuffient"<<endl;
-		return 0;
-	}
-
-	if((end(colPermInv)-begin(colPermInv))!=n)
-	{
-		cout<<"memory space of colPermInv is insuffient"<<endl;
-		return 0;
-	}
-
-	MC64(n,nnz,ap,ai,ax,colPerm,colPermInv);
+	MC21(n,ap,ai,colPerm,colPermInv);
+	//MC64(n,nnz,ap,ai,ax,colPerm,colPermInv);
 	MatrixPermute(n,nnz,ap,ai,ax,colPermInv);
-	amd_l_order(n,ap,ai,rowPerm,nullptr,nullptr);
-	for(long i=0;i<n;i++)
+	//amd_order(n,ap,ai,rowPerm,nullptr,nullptr);
+	for(int i=0;i<n;i++)
+	{
+		rowPerm[i]=i;
+	}
+	for(int i=0;i<n;i++)
 	{
 		rowPermInv[rowPerm[i]]=i;
 	}
@@ -503,208 +477,52 @@ int PreAnalysis(long n,long nnz,long *ap,long *ai,double *ax,long &lunnz,long *l
 	return 1;
 }
 
-void GPLUFactorize(long n,long &nnz,long *cap,long *cdiag,long **cai,double **cax)
+void GPLUFactorize(int n,int *ap,int *ai,double *ax,int *luap,int *ludiag,int *luai,double **luax)
 {
-	vector<long> lucap(n+1,0);
-	vector<long> lucai;
-	vector<long> ludiag(n,0);
-	
-	double *lucax{nullptr};
-	long *tai{nullptr};
-
-	vector<char> nonzero(n,0);
-
-	size_t size=n*sizeof(double);
 	double *x=new double[n]{0.0};
 
-	long cstart{0};
-	long cend{0};
-	long col{0};
+	int start{0};
+	int end{0};
+	int col{0};
 
-	int len{0};
-	int diag{0};
 
-	//symbol prediction, get the parttern of LU
-	for(int k=0;k<n;k++)
+	int nnz=luap[n];
+	if(*luax!=nullptr)
 	{
-		for(auto &t:nonzero)
-		{
-			t=0;
-		}
-		SymbolPrediction(n,k,cap,*cai,lucap,ludiag,lucai,nonzero);
-		/*
-		for(auto &t:x)
-		{
-			t=0.0;
-		}
-		cstart=cap[k];
-		cend=cap[k+1];
-		for(long i=cstart;i<cend;i++)
-		{
-			x[(*cai)[i]]=(*cax)[i];
-		}
-
-		for(int j=0;j<k;j++)
-		{
-			if(nonzero[j]==VISITED)
-			{
-				for(int m=ludiag[j]+1;m<lucap[j+1];m++)
-				{
-					x[lucai[m]]-=lucax[m]*x[j];
-				}
-			}
-		}
-		*/
-
-		len=0;
-		diag=0;
-		for(int i=0;i<n;i++)
-		{
-			if(i<=k)
-			{
-				//if(x[i]<-1e-32||x[i]>1e-32)
-				if(nonzero[i]!=0)
-				{
-					len++;
-					diag++;
-					lucai.push_back(i);
-					//lucax.push_back(x[i]);
-				}
-			}
-			else
-			{
-				//x[i]/=x[k];
-				//if(x[i]<-1e-32||x[i]>1e-32)
-				if(nonzero[i]!=0)
-				{
-					len++;
-					lucai.push_back(i);
-					//lucax.push_back(x[i]);
-				}
-			}
-		}
-		lucap[k+1]=lucap[k]+len;
-		ludiag[k]=lucap[k]+diag-1;
+		delete[] *luax;
 	}
-	//end
-
-	nnz=lucap[n];
-	lucax=new double[nnz]{0.0};
-	tai=new long[nnz]{0};
+	*luax=new double[nnz]{0.0};
 
 	for(int k=0;k<n;k++)
 	{
-		memset(x,0,size);
+		memset(x,0,n*sizeof(double));
 
-		cstart=cap[k];
-		cend=cap[k+1];
-		for(long i=cstart;i<cend;i++)
+		start=ap[k];
+		end=ap[k+1];
+		for(int i=start;i<end;i++)
 		{
-			x[(*cai)[i]]=(*cax)[i];
+			x[ai[i]]=ax[i];
 		}
 
-		for(int j=lucap[k];j<ludiag[k];j++)
+		for(int j=luap[k];j<ludiag[k];j++)
 		{
-			col=lucai[j];
-			for(int m=ludiag[col]+1;m<lucap[col+1];m++)
+			col=luai[j];
+			for(int m=ludiag[col]+1;m<luap[col+1];m++)
 			{
-				x[lucai[m]]-=lucax[m]*x[col];
+				x[luai[m]]-=(*luax)[m]*x[col];
 			}
 		}
 
-		for(int j=lucap[k];j<=ludiag[k];j++)
+		for(int j=luap[k];j<=ludiag[k];j++)
 		{
-			col=lucai[j];
-			tai[j]=col;
-			lucax[j]=x[col];
+			col=luai[j];
+			(*luax)[j]=x[col];
 		}
-		for(int j=ludiag[k]+1;j<lucap[k+1];j++)
+		for(int j=ludiag[k]+1;j<luap[k+1];j++)
 		{
-			col=lucai[j];
-			tai[j]=col;
-			lucax[j]=x[col]/x[k];
+			col=luai[j];
+			(*luax)[j]=x[col]/x[k];
 		}
-	}
-
-	/*
-	if(lucap[n]!=lucai.size())
-	{
-		cout<<"LU factor wrong"<<endl;
-	}
-
-	if(nnz!=lucap[n])
-	{
-		nnz=lucap[n];
-		delete[] *cai;
-		delete[] *cax;
-
-		*cai=new long[nnz]{0};
-		*cax=new double[nnz]{0.0};
-
-	}*/
-
-	cap[0]=lucap[0];
-	for(int i=0;i<n;i++)
-	{
-		cap[i+1]=lucap[i+1];
-		cdiag[i]=ludiag[i];
-	}
-
-	if(*cai!=nullptr)
-	{
-		delete[] *cai;
-	}
-	if(*cax!=nullptr)
-	{
-		delete[] *cax;
-	}
-	*cai=tai;
-	*cax=lucax;
-	/*
-	for(int i=0;i<nnz;i++)
-	{
-		(*cai)[i]=lucai[i];
-		(*cax)[i]=lucax[i];
-	}*/
-}
-void MyNicsluSolve(long n,long *cap,long *cdiag,long *cai,double *cax,double *b,long *rowPerm,long *rowPermInv,long *colPerm,long *colPermInv)
-{
-	long cstart{0};
-	long cend{0};
-
-	double *x=new double[n]{0.0};
-	
-	for(int i=0;i<n;i++)
-	{
-		x[i]=nicslu->row_scale[nicslu->row_perm[i]]*b[nicslu->row_perm[i]];
-	}
-
-	//solve Ly=b
-	for(int i=0;i<n-1;i++)
-	{
-		cstart=cdiag[i]+1;
-		cend=cap[i+1];
-		for(long j=cstart;j<cend;j++)
-		{
-			x[cai[j]]-=cax[j]*x[i];
-		}
-	}
-
-	//solve Ux=y
-	for(int i=n-1;i>=0;i--)
-	{
-		cstart=cap[i];
-		cend=cdiag[i];
-		x[i]/=cax[cend];
-		for(long j=cstart;j<cend;j++)
-		{
-			x[cai[j]]-=cax[j]*x[i];
-		}
-	}
-
-	for(int i=0;i<n;i++)
-	{
-		b[i]=nicslu->col_scale_perm[nicslu->col_perm_inv[i]]*x[nicslu->col_perm_inv[i]];
 	}
 
 	if(x!=nullptr)
@@ -713,11 +531,51 @@ void MyNicsluSolve(long n,long *cap,long *cdiag,long *cai,double *cax,double *b,
 		x=nullptr;
 	}
 }
-//__global__ void LUFactorKernel(long n,long *ap,long *ai,double *ax,long* luap,long *ludiag,long *luai,double *luax)
-//{
-//}
-//
-//__global__ void SolveKernel(long n,long* luap,long *ludiag,long *luai,double *luax,double *b)
-//{
-//}
+
+void Lusolve(int n,int *luap,int *ludiag,int *luai,double *luax,double *b,int *rowPerm,int *rowPermInv,int *colPerm,int *colPermInv)
+{
+	int start{0};
+	int end{0};
+
+	double *x=new double[n]{0.0};
+	
+	for(int i=0;i<n;i++)
+	{
+		x[i]=b[rowPermInv[i]];
+	}
+
+	//solve Ly=b
+	for(int i=0;i<n-1;i++)
+	{
+		start=ludiag[i]+1;
+		end=luap[i+1];
+		for(int j=start;j<end;j++)
+		{
+			x[luai[j]]-=luax[j]*x[i];
+		}
+	}
+
+	//solve Ux=y
+	for(int i=n-1;i>=0;i--)
+	{
+		start=luap[i];
+		end=ludiag[i];
+		x[i]/=luax[end];
+		for(int j=start;j<end;j++)
+		{
+			x[luai[j]]-=luax[j]*x[i];
+		}
+	}
+
+	for(int i=0;i<n;i++)
+	{
+		b[i]=x[colPerm[i]];
+	}
+
+	if(x!=nullptr)
+	{
+		delete[] x;
+		x=nullptr;
+	}
+}
 

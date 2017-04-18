@@ -6,14 +6,14 @@
 
 using namespace std;
 
-MinHeap::MinHeap(long size)
+MinHeap::MinHeap(int size)
 {
 	max = size;
 	n = 0;
 
 	if ((max > 0))
 	{
-		data = new long[max] {0};
+		data = new int[max] {0};
 	}
 	else
 	{
@@ -35,12 +35,12 @@ MinHeap::~MinHeap()
 
 void MinHeap::Reheap(double *d)
 {
-	long rowRoot = data[0];
+	int rowRoot = data[0];
 
-	long rootIndex{ 0 };
-	long smallChildIndex{ 0 };
-	long leftChildIndex{ 0 };
-	long rightChildIndex{ 0 };
+	int rootIndex{ 0 };
+	int smallChildIndex{ 0 };
+	int leftChildIndex{ 0 };
+	int rightChildIndex{ 0 };
 
 	bool done{ false };
 
@@ -71,10 +71,10 @@ void MinHeap::Reheap(double *d)
 	data[rootIndex] = rowRoot;
 }
 
-void MinHeap::Add(long h, double *d)
+void MinHeap::Add(int h, double *d)
 {
-	long index{ n };
-	long parent{ (index + 1) / 2 - 1 };
+	int index{ n };
+	int parent{ (index + 1) / 2 - 1 };
 	
 	n++;
 	while (parent >= 0 && (d[h] < d[data[parent]]))
@@ -87,9 +87,9 @@ void MinHeap::Add(long h, double *d)
 	data[index] = h;
 }
 
-long MinHeap::PopRoot(double *d)
+int MinHeap::PopRoot(double *d)
 {
-	long row{ data[0] };
+	int row{ data[0] };
 
 	if (n > 0)
 	{
@@ -107,7 +107,7 @@ void MinHeap::Clear()
 	n = 0;
 }
 
-void MinHeap::Resize(long size)
+void MinHeap::Resize(int size)
 {
 	if (size != max)
 	{
@@ -120,35 +120,35 @@ void MinHeap::Resize(long size)
 		}
 		if (max > 0)
 		{
-			data = new long[max] {0};
+			data = new int[max] {0};
 		}
 	}
 }
 
-long MaxMatch(long n, long *ap, long *ai, long *perm, long *permInv)
+int MaxMatch(int n, int *ap, int *ai, int *perm, int *permInv)
 {
-	long *p = new long[2 * n]{ -1 };
+	int *p = new int[2 * n]{ -1 };
 	char *amask = new char[n] {0};
-	size_t size{ n*sizeof(long) };
+	size_t size{ n*sizeof(int) };
 
-	for (long i = 0; i < n; i++)
+	for (int i = 0; i < n; i++)
 	{
 		*(perm + i) = -1;
 		*(permInv + i) = -1;
 	}
 
-	long col{ 0 };
-	long row{ 0 };
-	long top{ 0 };
-	long iap{ -1 };
+	int col{ 0 };
+	int row{ 0 };
+	int top{ 0 };
+	int iap{ -1 };
 	bool flag{ false };
-	long finish{ 0 };
+	int finish{ 0 };
 
-	for (long i = 0; i < n; i++)
+	for (int i = 0; i < n; i++)
 	{
 		size = n*sizeof(char);
 		memset(amask, 0, size);
-		//size = 2 * n*sizeof(long);
+		//size = 2 * n*sizeof(int);
 		//memset(p, 0, size);
 
 		col = i;
@@ -229,34 +229,34 @@ long MaxMatch(long n, long *ap, long *ai, long *perm, long *permInv)
 	return finish;
 }
 
-long MC64(long n, long nnz, long *ap, long *ai, double *ax, long *perm, long *permInv)
+int MC64(int n, int nnz, int *ap, int *ai, double *ax, int *perm, int *permInv)
 {
 	double *cx{ nullptr };		//nnz
 	double *cxp{ nullptr };		//nnz,cx prime for update
 	double *amax{ nullptr };	//n,maxminium element of column
 	double *u{ nullptr };		//n
 	double *v{ nullptr };		//n
-	long *bset{ nullptr };		//n
-	long *prevCol{ nullptr };	//n
+	int *bset{ nullptr };		//n
+	int *prevCol{ nullptr };	//n
 	MinHeap qset(n);
-	long *qmask{ nullptr };		//n
+	int *qmask{ nullptr };		//n
 
 	double *d{ nullptr };		//n,length of row i to column jo
 
-	long *apLocal{ nullptr };	//n+1
-	long *aiLocal{ nullptr };	//not bigger than nnz
+	int *apLocal{ nullptr };	//n+1
+	int *aiLocal{ nullptr };	//not bigger than nnz
 
-	long maxMatch{ 0 };
-	long col{ 0 };
+	int maxMatch{ 0 };
+	int col{ 0 };
 	double lsp{ 0.0 };			//length of shortest path 
 	double lsap{ 0.0 };			//length of shortest augmenting path
-	long rsap{ -1 };				//exist augmenting path from row isap to root column
-	long csap{ -1 };
+	int rsap{ -1 };				//exist augmenting path from row isap to root column
+	int csap{ -1 };
 	bool flag{ true };
 	double dnew{ 0.0 };
-	long row{ 0 };
-	long tmpRow{ 0 };
-	long tmpCol{ 0 };
+	int row{ 0 };
+	int tmpRow{ 0 };
+	int tmpCol{ 0 };
 
 	cx = new double[2 * nnz + 4 * n]{ 0.0 };
 	if (cx == nullptr)
@@ -270,7 +270,7 @@ long MC64(long n, long nnz, long *ap, long *ai, double *ax, long *perm, long *pe
 	v = u + n;
 	d = v + n;
 
-	bset = new long[3 * n + nnz + n + 1]{ 0 };
+	bset = new int[3 * n + nnz + n + 1]{ 0 };
 	if (bset == nullptr)
 	{
 		cout <<"in file \""<<__FILE__<<"\" line "<<__LINE__<<":"<< "allocating memory failed!" << endl;
@@ -281,17 +281,17 @@ long MC64(long n, long nnz, long *ap, long *ai, double *ax, long *perm, long *pe
 	apLocal = qmask + n;
 	aiLocal = apLocal + n + 1;
 	//reset the match
-	for (long i = 0; i < n; i++)
+	for (int i = 0; i < n; i++)
 	{
 		*(perm + i) = -1;
 		*(permInv + i) = -1;
 	}
 
 	//find maxminium element of every column
-	for (long i = 0; i < n; i++)
+	for (int i = 0; i < n; i++)
 	{
 		amax[i] = ABS(ax[ap[i]]);
-		for (long j = ap[i]; j < ap[i + 1]; j++)
+		for (int j = ap[i]; j < ap[i + 1]; j++)
 		{
 			if (amax[i] < ABS(ax[j]))
 			{
@@ -301,10 +301,10 @@ long MC64(long n, long nnz, long *ap, long *ai, double *ax, long *perm, long *pe
 	}
 	//reduced matrix
 	apLocal[0] = 0;
-	for (long i = 0; i < n; i++)
+	for (int i = 0; i < n; i++)
 	{
 		apLocal[i + 1] = apLocal[i];
-		for (long j = ap[i]; j < ap[i + 1]; j++)
+		for (int j = ap[i]; j < ap[i + 1]; j++)
 		{
 			cx[j] = log(amax[i]) - log(ABS(ax[j]));
 			cxp[j] = cx[j];
@@ -333,14 +333,14 @@ long MC64(long n, long nnz, long *ap, long *ai, double *ax, long *perm, long *pe
 
 	if (maxMatch < n)
 	{
-		for (long jo = 0; jo < n; jo++)
+		for (int jo = 0; jo < n; jo++)
 		{
 			if (perm[jo] < 0)	//column j0 unmatched
 			{
-				memset(bset, 0, n*sizeof(long));
-				memset(qmask, 0, n*sizeof(long));
+				memset(bset, 0, n*sizeof(int));
+				memset(qmask, 0, n*sizeof(int));
 				qset.Clear();
-				for (long i = 0; i < n; i++)
+				for (int i = 0; i < n; i++)
 				{
 					d[i] = INF;
 				}
@@ -354,7 +354,7 @@ long MC64(long n, long nnz, long *ap, long *ai, double *ax, long *perm, long *pe
 				flag = true;
 				while (flag)
 				{
-					for (long i = ap[col]; i < ap[col + 1]; i++)
+					for (int i = ap[col]; i < ap[col + 1]; i++)
 					{
 						row = ai[i];
 						if (!bset[row])
@@ -422,7 +422,7 @@ long MC64(long n, long nnz, long *ap, long *ai, double *ax, long *perm, long *pe
 					}
 					
 					//update u
-					for (long i = 0; i < n; i++)
+					for (int i = 0; i < n; i++)
 					{
 						if (bset[i])
 						{
@@ -430,9 +430,9 @@ long MC64(long n, long nnz, long *ap, long *ai, double *ax, long *perm, long *pe
 						}
 					}
 					//update v
-					for (long i = 0; i < n; i++)
+					for (int i = 0; i < n; i++)
 					{
-						for (long j = ap[i]; j < ap[i + 1]; j++)
+						for (int j = ap[i]; j < ap[i + 1]; j++)
 						{
 							row = ai[j];
 							if (row == perm[i])
@@ -442,9 +442,9 @@ long MC64(long n, long nnz, long *ap, long *ai, double *ax, long *perm, long *pe
 						}
 					}
 					//update C
-					for (long i = 0; i < n; i++)
+					for (int i = 0; i < n; i++)
 					{
-						for (long j = ap[i]; j < ap[i + 1]; j++)
+						for (int j = ap[i]; j < ap[i + 1]; j++)
 						{
 							row = ai[j];
 							cxp[j] = cx[j] - u[row] - v[i];
