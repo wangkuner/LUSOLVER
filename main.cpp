@@ -57,7 +57,7 @@ int main()
 	{
 		for(int j=ap[i];j<ap[i+1];j++)
 		{
-			b[ai[j]]+=ax[j]*i;
+			b[ai[j]]+=ax[j]*(i+1.0);
 		}
 	}
 	
@@ -97,7 +97,7 @@ int main()
 	{
 		for(int j=ap[i];j<ap[i+1];j++)
 		{
-			b[ai[j]]-=ax[j]*x[i];
+			b[ai[j]]+=ax[j]*x[i];
 		}
 		cout<<setw(10)<<x[i];
 		if((i+1)%10==0)
@@ -109,7 +109,7 @@ int main()
 	cout<<endl;
 	for(int i=0;i<n;i++)
 	{
-		if(b[i]-vb[i]<1e-32&&b[i]-vb[i]>-1e-32)
+		if(b[i]-vb[i]>1e-32&&b[i]-vb[i]<-1e-32)
 		{
 			cout<<i<<endl;
 			flag=false;
