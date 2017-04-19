@@ -459,21 +459,31 @@ int PreAnalysis(int n,int nnz,int *ap,int *ai,double *ax,int &lunnz,int *luap,in
 	MC21(n,ap,ai,colPerm,colPermInv);
 	//MC64(n,nnz,ap,ai,ax,colPerm,colPermInv);
 	MatrixPermute(n,nnz,ap,ai,ax,colPermInv);
-	//amd_order(n,ap,ai,rowPerm,nullptr,nullptr);
-	for(int i=0;i<n;i++)
-	{
-		rowPerm[i]=i;
-	}
+	amd_order(n,ap,ai,rowPerm,nullptr,nullptr);
+	//for(int i=0;i<n;i++)
+	//{
+	//	rowPerm[i]=i;
+	//}
 	for(int i=0;i<n;i++)
 	{
 		rowPermInv[rowPerm[i]]=i;
 	}
 	CSC2CSR(n,nnz,ap,ai,ax);
-	MatrixPermute(n,nnz,ap,ai,ax,rowPermInv);
+	MatrixPermute(n,nnz,ap,ai,ax,rowPerm);
 	CSR2CSC(n,nnz,ap,ai,ax);
+	MatrixPermute(n,nnz,ap,ai,ax,rowPerm);
+	
+	for(int i=0;i<n;i++)
+	{
+		colPerm[i]=colPermInv[rowPerm[i]];
+	}
+	for(int i=0;i<n;i++)
+	{
+		colPermInv[colPerm[i]]=i;
+	}
 	//符号分解
 	SymbolFactor(n,ap,ai,lunnz,luap,ludiag,luai);
-
+	
 	return 1;
 }
 
@@ -541,7 +551,7 @@ void Lusolve(int n,int *luap,int *ludiag,int *luai,double *luax,double *b,int *r
 	
 	for(int i=0;i<n;i++)
 	{
-		x[i]=b[rowPermInv[i]];
+		x[i]=b[rowPerm[i]];
 	}
 
 	//solve Ly=b
@@ -569,7 +579,7 @@ void Lusolve(int n,int *luap,int *ludiag,int *luai,double *luax,double *b,int *r
 
 	for(int i=0;i<n;i++)
 	{
-		b[i]=x[colPerm[i]];
+		b[i]=x[colPermInv[i]];
 	}
 
 	if(x!=nullptr)
